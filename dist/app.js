@@ -1,5 +1,25 @@
 (() => {
   'use strict';
+  const ICON_PATHS = Object.freeze({
+    camera: ['M4 8.5h3.1l1.25-2h3.3l1.25 2H20a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 20 18.5H4A1.5 1.5 0 0 1 2.5 17v-7A1.5 1.5 0 0 1 4 8.5Z', 'M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z'],
+    member: ['M4 6.5h16A1.5 1.5 0 0 1 21.5 8v8A1.5 1.5 0 0 1 20 17.5H4A1.5 1.5 0 0 1 2.5 16V8A1.5 1.5 0 0 1 4 6.5Z', 'M6 10.5h12', 'M8 13.5h3'],
+    activity: ['M3 12h3l2-6 4 12 2-6h7'],
+    transfer: ['M4 8h14l-3-3', 'M20 16H6l3 3'],
+  });
+
+  function createIcon(key) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('focusable', 'false');
+    svg.setAttribute('aria-hidden', 'true');
+    (ICON_PATHS[key] || ICON_PATHS.transfer).forEach(d => {
+      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', d);
+      svg.append(path);
+    });
+    return svg;
+  }
+
   const config = window.GX404_SITE;
   if (config && Array.isArray(config.links)) {
     document.getElementById('site-title').textContent = config.name;
@@ -26,7 +46,7 @@
       const icon = document.createElement('span');
       icon.className = 'site-icon';
       icon.setAttribute('aria-hidden', 'true');
-      icon.textContent = item.icon || '🔗';
+      icon.append(createIcon(item.icon));
       const name = document.createElement('span');
       name.textContent = item.name;
       const hint = document.createElement('span');
