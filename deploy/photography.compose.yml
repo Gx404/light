@@ -3,5 +3,5 @@
 services:
   app:
     environment:
-      SITE_URL: https://ph.gx404.cn
-      NEXT_PUBLIC_SITE_URL: https://ph.gx404.cn
+      SITE_URL: https://ph.gx404.com
+      NEXT_PUBLIC_SITE_URL: https://ph.gx404.com

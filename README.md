@@ -30,3 +30,15 @@ docker compose -f docker-compose.yml -f docker-compose.ghcr.yml up -d
 - 点击、拖动背景和减少动态效果偏好通过。
 - `app.js` 与 `dist/vendor/fluid.js` 通过语法检查。
 - 容器首页返回 `Gx404-首页`，`/healthz` 返回 `ok`。
+
+## 当前上海生产配置（2026-10-27）
+
+主站实际由宿主机 Caddy 提供 `/home/gx404/apps/gx404-home/dist`，并非上文通用 Nginx 容器；不要在上海机器直接执行通用 Compose，它的 8080 端口已由会员前端使用。
+
+生产域名为 gx404.com / www.gx404.com、ph.gx404.com、vip.gx404.com、vps.gx404.com、ios.gx404.com；Bark 保留 bark.gx404.cn。`deploy/Caddyfile` 与当前 `/etc/caddy/Caddyfile` 对齐；其中 .cn 兼容块与 Bark 块是有意保留。
+
+`deploy/photography.compose.yml` 仅为公开域名覆盖层，不是独立部署文件。下一次摄影与会员发布以 `/home/gx404/ops/production-current/manifest.json` 及同目录 Compose 为入口，先运行同目录 `validate.py`。这些服务器专用 Compose 含私密环境，禁止提交。
+
+`vip-manager-releases/*/compose.production.json` 和 `DEPLOYMENT_CURRENT.txt` 的历史记录不能覆盖当前生产配置。只更新目标应用服务；保留现行镜像的应用启动方式、回环地址绑定、资源限制及原命名数据卷，禁止为了页面修复执行数据库初始化或 seed。
+
+仓库旧地址 `https://github.com/Gx404/Gx404` 已由 GitHub 301 跳转到 `https://github.com/Gx404/light`；两者为同一仓库的旧、新地址。
