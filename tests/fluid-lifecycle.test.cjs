@@ -23,7 +23,7 @@ function fixture(script) {
   const ctx = vm.createContext(box);
   const engine = vm.runInContext(`(function(){${scheduler}\n${adapter}})()`,ctx);
   engine.start = () => {throw new Error('Resume must not require pointer input or a new splash');};
-  box.window.createGX404Fluid = () => engine;
+  box.window.createLightFluid = () => engine;
   // Intro is already played: reproduce a returning visitor, not opening splashes.
   script = script.replace('let introPlayed = false;', 'let introPlayed = true;').replace('seeded = false', 'seeded = true');
   vm.runInContext(script,ctx);
@@ -31,7 +31,6 @@ function fixture(script) {
   return {frames,document,motion,emit,advance(ms){clock+=ms;},tick(){const pending=[...frames.values()];frames.clear();for(const fn of pending)fn();}};
 }
 const inputs=[['main',readFileSync(path.join(mainRoot,'dist/app.js'),'utf8')]];
-if(process.argv[2])inputs.push(['subsite',readFileSync(process.argv[2],'utf8')]);
 for(const [name,script] of inputs) {
   test(`${name}: return after more than 20 seconds resumes without clicking`,()=>{
     const f=fixture(script);

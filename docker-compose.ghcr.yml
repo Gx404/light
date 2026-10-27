@@ -1,5 +1,5 @@
 services:
-  gx404-home:
-    image: ghcr.io/gx404/gx404-home:latest
+  home:
+    image: ${LIGHT_IMAGE:-ghcr.io/gx404/light:latest}
     build: null
 

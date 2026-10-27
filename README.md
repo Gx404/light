@@ -1,44 +1,54 @@
-一个纯静态导航页面，展示摄影、会员看板、服务器探针和文件互传四个独立子站。页面支持彩色 WebGL 流体、移动端布局和减少动态效果偏好。
-## 容器部署
+# Light
 
-仓库提供通用 Nginx 容器和 Compose 配置：
+一个可独立部署的静态主页模板：流体背景、透色标题、简洁导航、手机布局，以及减少动态效果和 WebGL 不可用时的静态回退。无需后端、数据库、第三方字体或统计服务。
+
+仓库仅包含主页模板、通用部署示例和相关测试。默认名称为 **Light**，所有导航使用 `example.com` 示例地址，备案信息默认不显示。
+
+## 快速开始
 
 ```sh
-git clone https://github.com/Gx404/light.git gx404-home
-cd gx404-home
+git clone https://github.com/Gx404/light.git
+cd light
+node preview.mjs
+```
+
+打开 `http://127.0.0.1:4173/`。也可以直接把 `dist/` 全部上传到静态托管平台，不需要运行 Node.js。
+
+## 自定义
+
+编辑 [`dist/site.config.js`](dist/site.config.js)：
+
+| 配置 | 用途 |
+| --- | --- |
+| `name`、`title` | 页面名称与浏览器标题 |
+| `tagline`、`intro`、`description` | 页面文案与分享描述 |
+| `siteUrl` | 可选正式地址，填写后生成 canonical 与分享 URL |
+| `links` | 导航名称、完整 HTTP/HTTPS 地址、图标 |
+| `icp` | 可选备案信息；默认 `null`，不显示备案号或分隔点 |
+
+可用图标：`grid`、`book`、`user`、`mail`。替换 `dist/favicon.svg` 可以更换站点图标。
+
+`dist/index.html` 中保留了无 JavaScript 时的示例名称、文案和导航。如果需要无脚本访客也看到自定义内容，请同步修改这些回退内容。
+
+## Docker 部署
+
+```sh
 docker compose up -d --build
 ```
 
-默认端口是 `8080`，健康检查地址是 `/healthz`。也可以使用 GHCR 预构建镜像：
+默认地址为 `http://127.0.0.1:8080/`，健康检查地址为 `/healthz`。绑定域名、使用预构建镜像、挂载自定义配置、更新和回退见 [部署说明](docs/DEPLOYMENT.md)。
+
+[`deploy/Caddyfile`](deploy/Caddyfile) 是只服务一个域名的通用 HTTPS 示例。仓库不会部署导航链接所指向的其他网站。
+
+## 检查
 
 ```sh
-docker compose -f docker-compose.yml -f docker-compose.ghcr.yml pull
-docker compose -f docker-compose.yml -f docker-compose.ghcr.yml up -d
+node --check dist/app.js
+node --check dist/site.config.js
+node --check dist/vendor/fluid.js
+node --test tests/*.test.cjs
 ```
 
-完整的端口、HTTPS、更新和回滚说明见 [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)。主分支由 [.github/workflows/container.yml](.github/workflows/container.yml) 发布 `ghcr.io/gx404/gx404-home`。
+容器工作流会先运行检查和容器冒烟测试，再将镜像发布至 `ghcr.io/<owner>/<repository>`。Fork 后使用自己的镜像地址；镜像是否可匿名拉取取决于 GHCR 的包可见性。
 
-## 生产反向代理
-
-容器只提供主站静态页面。需要绑定域名时，在自己的 Caddy、Nginx 或其他反向代理中把 HTTPS 流量转发到容器端口。仓库中的 `deploy/Caddyfile` 是 Gx404 现网路由示例，包含专用子站上游，不应原样复制到其他服务器。
-
-摄影、会员、VPS 和互传继续作为独立子域名运行，不会被主站容器合并。
-
-## 已验证
-
-- 桌面端和 390 × 844、320 × 640 手机布局通过。
-- 点击、拖动背景和减少动态效果偏好通过。
-- `app.js` 与 `dist/vendor/fluid.js` 通过语法检查。
-- 容器首页返回 `Gx404-首页`，`/healthz` 返回 `ok`。
-
-## 当前上海生产配置（2026-10-27）
-
-主站实际由宿主机 Caddy 提供 `/home/gx404/apps/gx404-home/dist`，并非上文通用 Nginx 容器；不要在上海机器直接执行通用 Compose，它的 8080 端口已由会员前端使用。
-
-生产域名为 gx404.com / www.gx404.com、ph.gx404.com、vip.gx404.com、vps.gx404.com、ios.gx404.com；Bark 保留 bark.gx404.cn。`deploy/Caddyfile` 与当前 `/etc/caddy/Caddyfile` 对齐；其中 .cn 兼容块与 Bark 块是有意保留。
-
-`deploy/photography.compose.yml` 仅为公开域名覆盖层，不是独立部署文件。下一次摄影与会员发布以 `/home/gx404/ops/production-current/manifest.json` 及同目录 Compose 为入口，先运行同目录 `validate.py`。这些服务器专用 Compose 含私密环境，禁止提交。
-
-`vip-manager-releases/*/compose.production.json` 和 `DEPLOYMENT_CURRENT.txt` 的历史记录不能覆盖当前生产配置。只更新目标应用服务；保留现行镜像的应用启动方式、回环地址绑定、资源限制及原命名数据卷，禁止为了页面修复执行数据库初始化或 seed。
-
-仓库旧地址 `https://github.com/Gx404/Gx404` 已由 GitHub 301 跳转到 `https://github.com/Gx404/light`；两者为同一仓库的旧、新地址。
+第三方流体引擎的来源与 MIT 许可证见 [THIRD_PARTY.md](THIRD_PARTY.md)。

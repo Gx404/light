@@ -1,14 +1,16 @@
-// 站点入口集中在这里维护。新增入口时，填写公开网页地址即可。
-window.GX404_SITE = Object.freeze({
-  name: 'Gx404',
-  tagline: 'keep exploring, keep creating.',
-  intro: '用光影记录生活，用好奇探索世界。',
-  icp: { label: '陇ICP备2025022641号-2', url: 'https://beian.miit.gov.cn/' },
+// 自定义名称、文案和导航。siteUrl 可留空；备案信息按需填写。
+window.LIGHT_SITE = Object.freeze({
+  name: 'Light',
+  title: 'Light · 个人主页',
+  tagline: 'make space for what matters.',
+  intro: '一个属于你的起点。',
+  description: '一个简洁、轻量、可自由定制的个人主页。',
+  siteUrl: '',
+  icp: null,
   links: [
-    { name: '摄影', url: 'https://ph.gx404.com/', icon: 'camera' },
-    { name: '会员', url: 'https://vip.gx404.com/', icon: 'member' },
-    { name: '探针', url: 'https://vps.gx404.com/', icon: 'activity' },
-    { name: '互传', url: 'https://ios.gx404.com/', icon: 'transfer' },
+    { name: '项目', url: 'https://example.com/projects', icon: 'grid' },
+    { name: '文档', url: 'https://example.com/docs', icon: 'book' },
+    { name: '关于', url: 'https://example.com/about', icon: 'user' },
+    { name: '联系', url: 'https://example.com/contact', icon: 'mail' },
   ],
 });
-

@@ -1,7 +1,0 @@
-# Apply after the gallery's existing Compose files; keep its current image,
-# entrypoint, ports and volumes. No gallery build or database restart is needed.
-services:
-  app:
-    environment:
-      SITE_URL: https://ph.gx404.com
-      NEXT_PUBLIC_SITE_URL: https://ph.gx404.com

@@ -22,9 +22,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// GX404 adapter. Upstream revision: a2d292931f19d9b3b9f564e23e6c32729d2121c3
+// Light adapter. Upstream revision: a2d292931f19d9b3b9f564e23e6c32729d2121c3
 // Retains the upstream MIT license; removes demo UI, analytics and event handlers.
-window.createGX404Fluid = function (canvas) {
+window.createLightFluid = function (canvas) {
 'use strict';
 resizeCanvas();
 

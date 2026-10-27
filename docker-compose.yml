@@ -1,12 +1,12 @@
 services:
-  gx404-home:
+  home:
     build:
       context: .
       dockerfile: Dockerfile
-    image: gx404-home:local
+    image: light:local
     restart: unless-stopped
     ports:
-      - "${PORT:-8080}:80"
+      - "${BIND_ADDRESS:-127.0.0.1}:${PORT:-8080}:80"
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1/healthz"]
       interval: 30s

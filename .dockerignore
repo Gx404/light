@@ -4,6 +4,9 @@
 .agents
 .tmp
 node_modules
+.env
+.env.*
+compose.custom.yml
 npm-debug.log
 *.log
 tests

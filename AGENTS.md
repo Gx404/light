@@ -1,14 +1,12 @@
-# GX404 主站维护约定
+# Light template maintenance
 
-- 主站的正式源码仓库是 `https://github.com/Gx404/light`。用户要求今后的主站修改统一上传至该仓库；完成验证后同步提交，不能只保留在本地或 Sites 预览。
-- 本项目是 `gx404.com` 的导航门户。摄影站使用 `ph.gx404.com`，VIP 使用 `vip.gx404.com`，服务器探针使用 `vps.gx404.com`，文件互传使用 `ios.gx404.com`。
-- Bark 保留 `bark.gx404.cn`。订阅 CDN 新入口尚未配置，不能把历史 `sub.gx404.cn` 当作现行可用服务。
-- 源码位于 `dist/`，直接静态部署，不需要构建或数据库。`site.config.js` 管理入口，`index.html` 保留无 JavaScript 的导航。
-- 品牌显示为 `Gx404`。标题通过混色显示背景流体的颜色；底部入口使用统一尺寸、统一线宽的单色 SVG 图标和轻量透明按钮。
-- 背景必须支持点击、拖动产生的彩色流体效果，保留减少动态效果偏好支持及 WebGL 不可用时的静态回退。按用户最新要求，底栏不显示暂停按钮或英文标语，只保留版权和链接到工信部的 `陇ICP备2025022641号`。
-- 页面首次可见时自动产生一轮随机彩色流体（手机 3 处、桌面 4 处）；只触发背景效果，不模拟网页点击。用户开始操作后停止尚未播放的开场，减少动态效果偏好开启时不自动播放。
-- 修改后检查桌面、390 像素与 320 像素手机布局，实际点击和拖动背景，并验证标题透色、站点导航和备案链接。
-- `dist/vendor/fluid.js` 基于 Pavel Dobryakov 的 MIT 开源项目，修改或分发时保留许可证和 `THIRD_PARTY.md` 的来源说明。
-- 修改线上配置前读取实际 Caddy 配置、运行服务和部署记录，备份可回退版本；摄影数据库与上传目录不属于导航页面的修改范围。
-- 不提交凭据、环境文件、服务端数据库、上传内容、备份或测试截图。
-
+- This repository is a standalone, reusable static homepage template. Keep personal domains, subsite routes, registration numbers, server addresses, production paths, and operational records out of it.
+- Source repository: https://github.com/Gx404/light. Validate changes and synchronize them to this repository when requested; a GitHub push does not deploy anyone's existing website.
+- Runtime files live in `dist/`. The page needs no backend, database, installation, or build step. `dist/site.config.js` contains public customization options; keep `dist/index.html` useful without JavaScript.
+- Default branding is `Light`, links use reserved example domains, and registration information is optional and empty by default. Do not add another person's deployed configuration as an example.
+- Preserve the WebGL fluid background, pointer interaction, opening animation, reduced-motion support, background pause/resume, and static fallback when WebGL is unavailable.
+- Keep navigation icons visually consistent. Verify desktop and 390 px / 320 px layouts when browser tooling supports actual viewport changes; report unverified cases honestly.
+- `dist/vendor/fluid.js` derives from Pavel Dobryakov's MIT-licensed project. Preserve its license and `THIRD_PARTY.md` attribution.
+- `deploy/` contains generic single-site server examples only. Never copy a real multi-service gateway or a private deployment overlay into this repository.
+- Run JavaScript syntax checks and `node --test tests/*.test.cjs`. Validate the Docker health endpoint when changing container configuration.
+- Do not commit credentials, environment files, server data, private configuration, backups, or test screenshots.

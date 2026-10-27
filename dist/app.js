@@ -1,10 +1,10 @@
 (() => {
   'use strict';
   const ICON_PATHS = Object.freeze({
-    camera: ['M4 8.5h3.1l1.25-2h3.3l1.25 2H20a1.5 1.5 0 0 1 1.5 1.5v7A1.5 1.5 0 0 1 20 18.5H4A1.5 1.5 0 0 1 2.5 17v-7A1.5 1.5 0 0 1 4 8.5Z', 'M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z'],
-    member: ['M4 6.5h16A1.5 1.5 0 0 1 21.5 8v8A1.5 1.5 0 0 1 20 17.5H4A1.5 1.5 0 0 1 2.5 16V8A1.5 1.5 0 0 1 4 6.5Z', 'M6 10.5h12', 'M8 13.5h3'],
-    activity: ['M3 12h3l2-6 4 12 2-6h7'],
-    transfer: ['M4 8h14l-3-3', 'M20 16H6l3 3'],
+    grid: ['M3 3h7v7H3Z', 'M14 3h7v7h-7Z', 'M3 14h7v7H3Z', 'M14 14h7v7h-7Z'],
+    book: ['M12 5v15', 'M3 4h5a4 4 0 0 1 4 2 4 4 0 0 1 4-2h5v15h-5a4 4 0 0 0-4 2 4 4 0 0 0-4-2H3Z'],
+    user: ['M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z', 'M4 21v-2a8 8 0 0 1 16 0v2'],
+    mail: ['M3 5h18v14H3Z', 'M3 6l9 7 9-7'],
   });
 
   function createIcon(key) {
@@ -12,7 +12,7 @@
     svg.setAttribute('viewBox', '0 0 24 24');
     svg.setAttribute('focusable', 'false');
     svg.setAttribute('aria-hidden', 'true');
-    (ICON_PATHS[key] || ICON_PATHS.transfer).forEach(d => {
+    (ICON_PATHS[key] || ICON_PATHS.grid).forEach(d => {
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       path.setAttribute('d', d);
       svg.append(path);
@@ -20,42 +20,73 @@
     return svg;
   }
 
-  const config = window.GX404_SITE;
-  if (config && Array.isArray(config.links)) {
+  function httpUrl(value) {
+    if (typeof value !== 'string') return null;
+    try {
+      const url = new URL(value);
+      return ['http:', 'https:'].includes(url.protocol) ? url : null;
+    } catch { return null; }
+  }
+
+  const config = window.LIGHT_SITE;
+  if (config && typeof config === 'object') {
     document.getElementById('site-title').textContent = config.name;
     document.getElementById('footer-name').textContent = config.name;
     document.getElementById('tagline').textContent = config.tagline;
     document.getElementById('intro').textContent = config.intro;
-    if (config.icp) {
-      const registration = document.getElementById('icp-link');
-      registration.textContent = config.icp.label;
-      registration.href = config.icp.url;
-      registration.setAttribute('aria-label', `${config.icp.label}（在新标签页打开）`);
+    document.title = config.title || config.name;
+    document.querySelector('meta[name="description"]').setAttribute('content', config.description || config.intro || '');
+    document.querySelector('meta[property="og:title"]').setAttribute('content', document.title);
+    document.querySelector('meta[property="og:description"]').setAttribute('content', config.description || config.intro || '');
+    const siteUrl = httpUrl(config.siteUrl);
+    if (siteUrl) {
+      const canonical = document.querySelector('link[rel="canonical"]') || document.createElement('link');
+      canonical.setAttribute('rel', 'canonical');
+      canonical.setAttribute('href', siteUrl.href);
+      const shareUrl = document.querySelector('meta[property="og:url"]') || document.createElement('meta');
+      shareUrl.setAttribute('property', 'og:url');
+      shareUrl.setAttribute('content', siteUrl.href);
+      document.head.append(canonical, shareUrl);
     }
-    const fragment = document.createDocumentFragment();
-    config.links.forEach(item => {
-      let url;
-      try { url = new URL(item.url); } catch { return; }
-      if (!['http:', 'https:'].includes(url.protocol)) return;
-      const anchor = document.createElement('a');
-      anchor.className = 'site-link';
-      anchor.href = url.href;
-      anchor.target = '_blank';
-      anchor.rel = 'noopener noreferrer';
-      anchor.title = `${item.name} · ${url.hostname}（新标签页）`;
-      const icon = document.createElement('span');
-      icon.className = 'site-icon';
-      icon.setAttribute('aria-hidden', 'true');
-      icon.append(createIcon(item.icon));
-      const name = document.createElement('span');
-      name.textContent = item.name;
-      const hint = document.createElement('span');
-      hint.className = 'sr-only';
-      hint.textContent = '（在新标签页打开）';
-      anchor.append(icon, name, hint);
-      fragment.append(anchor);
-    });
-    document.getElementById('sites').replaceChildren(fragment);
+    const registration = document.getElementById('icp-link');
+    const separator = document.getElementById('icp-separator');
+    const registrationUrl = httpUrl(config.icp?.url);
+    if (registrationUrl && typeof config.icp.label === 'string' && config.icp.label.trim()) {
+      registration.textContent = config.icp.label;
+      registration.href = registrationUrl.href;
+      registration.setAttribute('aria-label', `${config.icp.label}（在新标签页打开）`);
+      registration.hidden = false;
+      separator.hidden = false;
+    } else {
+      registration.hidden = true;
+      separator.hidden = true;
+    }
+    if (Array.isArray(config.links)) {
+      const fragment = document.createDocumentFragment();
+      config.links.forEach(item => {
+        if (!item || typeof item.name !== 'string' || !item.name.trim()) return;
+        const url = httpUrl(item.url);
+        if (!url) return;
+        const anchor = document.createElement('a');
+        anchor.className = 'site-link';
+        anchor.href = url.href;
+        anchor.target = '_blank';
+        anchor.rel = 'noopener noreferrer';
+        anchor.title = `${item.name} · ${url.hostname}（新标签页）`;
+        const icon = document.createElement('span');
+        icon.className = 'site-icon';
+        icon.setAttribute('aria-hidden', 'true');
+        icon.append(createIcon(item.icon));
+        const name = document.createElement('span');
+        name.textContent = item.name;
+        const hint = document.createElement('span');
+        hint.className = 'sr-only';
+        hint.textContent = '（在新标签页打开）';
+        anchor.append(icon, name, hint);
+        fragment.append(anchor);
+      });
+      document.getElementById('sites').replaceChildren(fragment);
+    }
   }
   document.getElementById('year').textContent = String(new Date().getFullYear());
 
@@ -97,7 +128,7 @@
   function initialise() {
     if (engine || unavailable || motionQuery.matches) return;
     try {
-      engine = window.createGX404Fluid(canvas);
+      engine = window.createLightFluid(canvas);
       canvas.dataset.renderer = 'webgl';
     } catch {
       unavailable = true;
