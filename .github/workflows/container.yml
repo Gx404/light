@@ -28,9 +28,12 @@ jobs:
           docker build -t light:test .
           docker run -d --name light-smoke -p 127.0.0.1:18080:80 light:test
           trap 'docker logs light-smoke; docker rm -f light-smoke' EXIT
-          curl --fail --retry 10 --retry-delay 1 --retry-connrefused http://127.0.0.1:18080/healthz | grep -qx 'ok'
-          curl --fail http://127.0.0.1:18080/ | grep -q '<title>Light'
-          curl --fail -I http://127.0.0.1:18080/site.config.js | grep -qi 'cache-control: no-cache'
+          curl --fail --silent --show-error --retry 10 --retry-delay 1 --retry-all-errors --max-time 5 --output /tmp/light-health http://127.0.0.1:18080/healthz
+          grep -qx 'ok' /tmp/light-health
+          curl --fail --silent --show-error --output /tmp/light-home http://127.0.0.1:18080/
+          grep -q '<title>Light' /tmp/light-home
+          curl --fail --silent --show-error -I --output /tmp/light-headers http://127.0.0.1:18080/site.config.js
+          grep -qi 'cache-control: no-cache' /tmp/light-headers
 
   publish:
     needs: validate
@@ -66,3 +69,4 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
