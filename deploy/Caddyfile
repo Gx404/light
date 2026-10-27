@@ -1,12 +1,25 @@
+(gx404_safe_headers) {
+    header {
+        Strict-Transport-Security "max-age=300"
+        defer
+    }
+    header {
+        ?X-Content-Type-Options "nosniff"
+        ?Referrer-Policy "strict-origin-when-cross-origin"
+    }
+    @gx404_private_files path /.env /.env.* /.git /.git/* /.svn /.svn/* /compose.yaml /docker-compose.yml
+    respond @gx404_private_files 404
+}
+
 gx404.cn, www.gx404.cn {
-    encode zstd gzip
+    import gx404_safe_headers
     @photography path /gallery /gallery/* /curated /curated/* /story /story/* /blog /blog/* /about /about/* /they /they/* /login /login/* /admin /admin/* /uploads/*
-    redir @photography https://ph.gx404.cn{uri} 308
-    root * /home/gx404/apps/gx404-home/dist
-    file_server
+    redir @photography https://ph.gx404.com{uri} 308
+    redir https://gx404.com{uri} 308
 }
 
 ph.gx404.cn {
+    import gx404_safe_headers
     encode zstd gzip
     # The current gallery image contains a robots.txt generated before migration.
     respond /robots.txt "User-agent: *
@@ -20,16 +33,20 @@ Sitemap: https://ph.gx404.cn/sitemap.xml
 }
 
 vps.gx404.cn {
+    import gx404_safe_headers
     encode zstd gzip
     reverse_proxy 127.0.0.1:25774
 }
 
 vip.gx404.cn {
-    encode zstd gzip
+    import gx404_safe_headers
+    @navigation method GET HEAD
+    redir @navigation https://vip.gx404.com{uri} 307
     reverse_proxy 127.0.0.1:8080
 }
 
 ios.gx404.cn {
+    import gx404_safe_headers
     encode zstd gzip
     reverse_proxy 127.0.0.1:3002 {
         header_up -CF-Connecting-IP
@@ -37,3 +54,62 @@ ios.gx404.cn {
     }
 }
 
+
+bark.gx404.cn {
+    import gx404_safe_headers
+    # Do not enable access logs: request paths can include push keys and SMS.
+    @internal path /info /info/* /mcp /mcp/*
+    respond @internal 404
+    request_body {
+        max_size 64KB
+    }
+    reverse_proxy 127.0.0.1:8088 {
+        header_up -CF-Connecting-IP
+        header_up X-Forwarded-For {remote_host}
+    }
+}
+
+gx404.com, www.gx404.com {
+    tls /etc/caddy/certs/gx404.com/fullchain.pem /etc/caddy/certs/gx404.com/privkey.pem
+    import gx404_safe_headers
+    encode zstd gzip
+    @photography path /gallery /gallery/* /curated /curated/* /story /story/* /blog /blog/* /about /about/* /they /they/* /login /login/* /admin /admin/* /uploads/*
+    redir @photography https://ph.gx404.com{uri} 308
+    root * /home/gx404/apps/gx404-home/dist
+    file_server
+}
+
+ph.gx404.com {
+    import gx404_safe_headers
+    encode zstd gzip
+    # The current gallery image contains a robots.txt generated before migration.
+    respond /robots.txt "User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /login
+
+Sitemap: https://ph.gx404.com/sitemap.xml
+" 200
+    reverse_proxy 127.0.0.1:3001
+}
+
+vip.gx404.com {
+    import gx404_safe_headers
+    encode zstd gzip
+    reverse_proxy 127.0.0.1:8080
+}
+
+vps.gx404.com {
+    import gx404_safe_headers
+    encode zstd gzip
+    reverse_proxy 127.0.0.1:25774
+}
+
+ios.gx404.com {
+    import gx404_safe_headers
+    encode zstd gzip
+    reverse_proxy 127.0.0.1:3002 {
+        header_up -CF-Connecting-IP
+        header_up X-Forwarded-For {remote_host}
+    }
+}
